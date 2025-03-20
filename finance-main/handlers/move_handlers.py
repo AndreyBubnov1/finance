@@ -2,8 +2,9 @@ from bot import bot
 from lexicon import lexicon
 from keyboards import get_transaction_type_kb, get_expence_categoriers_kb, get_income_categoriers_kb, get_main_menu_kb, get_back_to_category_kb
 from telebot import TeleBot
-from service.tranzaction import create_transactions, set_type_transaction
-
+from service.tranzaction import (create_transactions, set_type_transaction,set_categorie_transactions,
+                                 can_set_transaction_amount,set_transaction_amount, from_amount_to_category, get_category
+)
 def register_move_handlers(bot: TeleBot):
     
     @bot.callback_query_handler(
@@ -51,6 +52,16 @@ def register_move_handlers(bot: TeleBot):
     def from_transaction_categorie(callback):
         to_fix_transaction(callback)
     
+        @bot.callback_query_handler(
+        func=lambda call: call.data == lexicon.from_select_transaction_type.data
+    )
+        def from_select_transactio_type(callback):
+            bot.edit_message_text(
+            chat_id=callback.message.chat.id,
+            message_id=callback.message.message_id,
+            text=lexicon.start,
+            reply_markup=get_main_menu_kb()
+            )
 
     @bot.callback_query_handler(
         func=lambda call: call.data in (lexicon.gift_income.data,
@@ -66,11 +77,41 @@ def register_move_handlers(bot: TeleBot):
                                         lexicon.food_expence.data)
     )
 
-    def from_select_transaction_type(callback):
+    def from_categorie_to_amount(callback):
+        set_categorie_transactions(callback.message.chat.id, callback.data)
+        bot.edit_message_text(
+            chat_id=callback.message.chat.id,
+            text="Напишите сумму",
+            message_id=callback.message.message_id,
+            reply_markup=get_back_to_category_kb()
+        )
+
+    @bot.message_handler(
+        func=lambda msg: can_set_transaction_amount(msg.chat.id) and msg.text.isdigit()
+    )
+    def from_amount_to_main_menu(message):
+        amount = int(message.text)
+        set_transaction_amount(message.chat.id, amount)
+
+    def error_input_amount(message):
+        bot.delete_message(
+            chat_id=message.chat.id,
+            message_id=message.message_id
+        )
+    @bot.callback_query_handler(
+        func=lambda call: call.data == lexicon.from_amount_to_categorie.data
+    )
+    @bot.callback_quey_handler(
+        func= lambda call: call.data == lexicon.from_amount_to_category.data
+    )
+    def from_amount_to_category(callback):
+        category = get_category(callback.message.chat.id)
+        if category.endswith("income"):
+            kb =  get_income_categoriers_kb()
+        elif category.endswith("expence"):
+            kb = get_expence_categoriers_kb()
         bot.edit_message_text(
             chat_id=callback.message.chat.id,
             message_id=callback.message.message_id,
             text="Напишите сумму",
-            reply_markup=get_back_to_category_kb()
         )
-    

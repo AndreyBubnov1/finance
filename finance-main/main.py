@@ -5,4 +5,4 @@ from handlers.move_handlers import register_move_handlers
 register_user_handlers(bot)
 register_move_handlers(bot)
 
-bot.polling()
+bot.polling(skip_pending=True)
