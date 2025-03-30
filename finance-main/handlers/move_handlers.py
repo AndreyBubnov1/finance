@@ -3,7 +3,7 @@ from lexicon import lexicon
 from keyboards import get_transaction_type_kb, get_expence_categoriers_kb, get_income_categoriers_kb, get_main_menu_kb, get_back_to_category_kb
 from telebot import TeleBot
 from service.tranzaction import (create_transactions, set_type_transaction,set_categorie_transactions,
-                                 can_set_transaction_amount,set_transaction_amount, from_amount_to_category, get_category
+                                 can_set_transaction_amount,set_transaction_amount, get_category
 )
 def register_move_handlers(bot: TeleBot):
     
@@ -101,10 +101,10 @@ def register_move_handlers(bot: TeleBot):
     @bot.callback_query_handler(
         func=lambda call: call.data == lexicon.from_amount_to_categorie.data
     )
-    @bot.callback_quey_handler(
-        func= lambda call: call.data == lexicon.from_amount_to_category.data
+    @bot.callback_query_handler(
+        func= lambda call: call.data == lexicon.from_amount_to_categorie.data
     )
-    def from_amount_to_category(callback):
+    def from_amount_to_categorie(callback):
         category = get_category(callback.message.chat.id)
         if category.endswith("income"):
             kb =  get_income_categoriers_kb()
