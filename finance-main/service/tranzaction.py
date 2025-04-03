@@ -26,6 +26,11 @@ def set_transaction_amount(chat_id,amount):
     transactions[chat_id]["amount"] = amount
     print(transactions)
 
+def get_transaction_object(chat_id):
+    data = transactions[chat_id]
+    data["chat_id"] = chat_id
+    return data
+
 def get_template_transaction(type_ = None, category = None, amount = None):
     """
     type - тип транзакции

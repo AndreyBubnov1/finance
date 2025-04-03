@@ -3,8 +3,10 @@ from lexicon import lexicon
 from keyboards import get_transaction_type_kb, get_expence_categoriers_kb, get_income_categoriers_kb, get_main_menu_kb, get_back_to_category_kb
 from telebot import TeleBot
 from service.tranzaction import (create_transactions, set_type_transaction,set_categorie_transactions,
-                                 can_set_transaction_amount,set_transaction_amount, get_category
-)
+                                 can_set_transaction_amount,set_transaction_amount, get_category,
+                                 get_transaction_object)
+from service.database import write_database
+from service.message import msgs_to_delete
 def register_move_handlers(bot: TeleBot):
     
     @bot.callback_query_handler(
@@ -85,13 +87,39 @@ def register_move_handlers(bot: TeleBot):
             message_id=callback.message.message_id,
             reply_markup=get_back_to_category_kb()
         )
+        msgs_to_delete[callback.message.chat.id] = callback.message.message_id
 
     @bot.message_handler(
         func=lambda msg: can_set_transaction_amount(msg.chat.id) and msg.text.isdigit()
     )
     def from_amount_to_main_menu(message):
         amount = int(message.text)
-        set_transaction_amount(message.chat.id, amount)
+        chat_id=message.chat.id
+        set_transaction_amount(chat_id, amount)
+
+        data = get_transaction_object(chat_id)
+        write_database(data)
+        
+        bot.delete_message(
+            chat_id=chat_id,
+            message_id=message.message_id
+        )
+
+        bot.delete_message(
+            chat_id=chat_id,
+            message_id=message.message_id
+        )
+
+        bot.send_message(
+            chat_id=chat_id,
+            text=lexicon.fixed_transaction.format_map(data)
+        )
+        bot.send_message(
+            chat_id=chat_id,
+            text=lexicon.start,
+            reply_markup=get_main_menu_kb()
+        )
+
 
     def error_input_amount(message):
         bot.delete_message(

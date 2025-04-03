@@ -100,4 +100,8 @@ class Lexicon:
             text="Назад",
             data="from_amount_to_categorie"   
         )
+
+        self.fixed_transaction = "Дата: {date}\nТип: {type}\nКатегория: {category}\nСумма: {amount}"
+
+        
 lexicon = Lexicon()
