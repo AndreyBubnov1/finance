@@ -1,1 +1,1 @@
-msgs_to_delete = ()
+msgs_to_delete = {}

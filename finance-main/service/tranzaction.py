@@ -15,7 +15,7 @@ def set_categorie_transactions(chat_id, categorie):
 def can_set_transaction_amount(chat_id):
     if chat_id in transactions and \
     transactions[chat_id]["type"] is not None and \
-    transactions[chat_id]["categorie"] is not None :
+    transactions[chat_id]["category"] is not None :
         return True 
     else:
         return False

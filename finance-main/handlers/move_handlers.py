@@ -7,6 +7,7 @@ from service.tranzaction import (create_transactions, set_type_transaction,set_c
                                  get_transaction_object)
 from service.database import write_database
 from service.message import msgs_to_delete
+from service.getter_categories import callback_categories
 def register_move_handlers(bot: TeleBot):
     
     @bot.callback_query_handler(
@@ -66,21 +67,11 @@ def register_move_handlers(bot: TeleBot):
             )
 
     @bot.callback_query_handler(
-        func=lambda call: call.data in (lexicon.gift_income.data,
-                                        lexicon.pocket_income.data,
-                                        lexicon.salary_income.data,
-                                        lexicon.another_income.data,
-                                        lexicon.gift_expence.data,
-                                        lexicon.another_expence.data,
-                                        lexicon.сlothes_expence.data,
-                                        lexicon.transport_expence.data,
-                                        lexicon.attractions_expence.data,
-                                        lexicon.philanthropy_expence.data,
-                                        lexicon.food_expence.data)
+        func=lambda call: call.data in callback_categories
     )
 
     def from_categorie_to_amount(callback):
-        set_categorie_transactions(callback.message.chat.id, callback.data)
+        set_categorie_transactions(callback.message.chat.id, callback_categories[callback.data])
         bot.edit_message_text(
             chat_id=callback.message.chat.id,
             text="Напишите сумму",
@@ -107,9 +98,8 @@ def register_move_handlers(bot: TeleBot):
 
         bot.delete_message(
             chat_id=chat_id,
-            message_id=message.message_id
+            message_id=msgs_to_delete[chat_id]
         )
-
         bot.send_message(
             chat_id=chat_id,
             text=lexicon.fixed_transaction.format_map(data)
